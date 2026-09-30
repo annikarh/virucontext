@@ -100,6 +100,7 @@
       e.preventDefault();
       packet.hidden = true;
       meta.hidden = true;
+      meta.replaceChildren();
       status.className = "status";
       status.textContent = "Looking up open-access full text…";
       go.disabled = true;
@@ -116,14 +117,7 @@
         if (!res.ok) {
           throw new Error(data.detail || res.statusText);
         }
-        const p = data.paper;
-        meta.innerHTML = [
-          p.title ? "<strong>" + escapeHtml(p.title) + "</strong>" : "",
-          [p.journal, p.year].filter(Boolean).join(" "),
-          p.oa_url ? '<a href="' + escapeHtml(p.oa_url) + '" target="_blank" rel="noopener">Europe PMC</a>' : "",
-          p.doi ? "doi:" + escapeHtml(p.doi) : "",
-        ].filter(Boolean).join(" · ");
-        meta.hidden = false;
+        renderMeta(data.paper);
         packet.textContent = data.packet;
         packet.hidden = false;
         status.textContent = "Done. Check isolate, temperature, and antibody clone before you cite.";
@@ -135,13 +129,29 @@
       }
     });
 
-    function escapeHtml(s) {
-      return String(s)
-        .replace(/&/g, "&")
-        .replace(/</g, "<")
-        .replace(/>/g, ">")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
+    function renderMeta(p) {
+      const parts = [];
+      if (p.title) {
+        const strong = document.createElement("strong");
+        strong.textContent = p.title;
+        parts.push(strong);
+      }
+      const journal = [p.journal, p.year].filter(Boolean).join(" ");
+      if (journal) parts.push(document.createTextNode(journal));
+      if (p.oa_url) {
+        const a = document.createElement("a");
+        a.href = p.oa_url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.textContent = "Europe PMC";
+        parts.push(a);
+      }
+      if (p.doi) parts.push(document.createTextNode("doi:" + p.doi));
+      parts.forEach((node, i) => {
+        if (i) meta.appendChild(document.createTextNode(" \u00b7 "));
+        meta.appendChild(node);
+      });
+      meta.hidden = false;
     }
   </script>
 </body>
