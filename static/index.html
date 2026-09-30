@@ -118,10 +118,10 @@
         }
         const p = data.paper;
         meta.innerHTML = [
-          p.title ? `<strong>${escapeHtml(p.title)}</strong>` : "",
+          p.title ? "<strong>" + escapeHtml(p.title) + "</strong>" : "",
           [p.journal, p.year].filter(Boolean).join(" "),
-          p.oa_url ? `<a href="${p.oa_url}" target="_blank" rel="noopener">Europe PMC</a>` : "",
-          p.doi ? `doi:${escapeHtml(p.doi)}` : "",
+          p.oa_url ? '<a href="' + escapeHtml(p.oa_url) + '" target="_blank" rel="noopener">Europe PMC</a>' : "",
+          p.doi ? "doi:" + escapeHtml(p.doi) : "",
         ].filter(Boolean).join(" · ");
         meta.hidden = false;
         packet.textContent = data.packet;
@@ -136,9 +136,12 @@
     });
 
     function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, (c) => ({
-        "&": "&", "<": "<", ">": ">", '"': "&quot;", "'": "&#39;"
-      })[c]);
+      return String(s)
+        .replace(/&/g, "&")
+        .replace(/</g, "<")
+        .replace(/>/g, ">")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
   </script>
 </body>
